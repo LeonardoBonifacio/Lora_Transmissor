@@ -79,7 +79,6 @@ void SetFrequency(double Frequency) {
 }
 
 
-
 void lora_setup() {
     // 1. Inicializar GPIOs – CS e RST
     gpio_init(PIN_CS);
@@ -112,13 +111,16 @@ void lora_setup() {
 
     // 3.3. Configuração do Rádio LoRa – BW, FS, CR, LDRO, etc.
     writeRegister(REG_MODEM_CONFIG, BANDWIDTH_125K | ERROR_CODING_4_5);
-    writeRegister(REG_MODEM_CONFIG2, SPREADING_7 | CRC_ON);
+    writeRegister(REG_MODEM_CONFIG2, SPREADING_7 | CRC_OFF);
     // Configura o cabeçalho implícito (Implicit Header)
     writeRegister(REG_MODEM_CONFIG3, 0x04); // LNA gain boost
     
+    // --- Configuração da Potência de Transmissão (TX Power) ---
+    // A potência de 17 dBm é a máxima permitida no pino PA_BOOST
+    // quando o registrador REG_PA_DAC não está configurado para 20 dBm.
+    writeRegister(REG_PA_CONFIG, 0x8F); // PA_BOOST com a potência máxima de 17 dBm
+
     // 3.4. Definir tamanho do Payload.
-    // O tamanho do payload será definido dinamicamente antes de cada transmissão.
-    // Por isso, vamos apenas definir um valor máximo aqui.
     writeRegister(REG_PAYLOAD_LENGTH, 15);
     writeRegister(REG_MAX_PAYLOAD_LENGTH, 15);
 
